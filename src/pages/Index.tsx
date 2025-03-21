@@ -30,8 +30,15 @@ const Index = () => {
       {/* Header */}
       <header className="bg-white shadow-sm border-b">
         <div className="container mx-auto py-6 px-4">
-          <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Album Receipt Generator</h1>
-          <p className="text-gray-500 mt-1">Create and download custom album receipts</p>
+          <div className="flex flex-col md:flex-row md:justify-between md:items-center">
+            <div>
+              <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Album Receipt Generator</h1>
+              <p className="text-gray-500 mt-1">Create and download custom album receipts</p>
+            </div>
+            <div className="mt-2 md:mt-0">
+              <p className="text-gray-700 font-medium">Created by Faaiq • <a href="https://twitter.com/nyatsot" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">@nyatsot</a></p>
+            </div>
+          </div>
         </div>
       </header>
 
@@ -82,8 +89,8 @@ const Index = () => {
       {/* Footer */}
       <footer className="border-t bg-white py-6 mt-12">
         <div className="container mx-auto px-4 text-center text-gray-500 text-sm">
-          <p>Create custom album receipts inspired by the style of @albumreceipts</p>
-          <p className="mt-2">Built with React • All data is processed locally in your browser</p>
+          <p className="mb-2">Developed by Faaiq • <a href="https://twitter.com/nyatsot" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">@nyatsot</a></p>
+          <p>Built with React • All data is processed locally in your browser</p>
         </div>
       </footer>
     </div>
