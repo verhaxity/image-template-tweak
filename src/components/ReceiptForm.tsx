@@ -1,16 +1,12 @@
 
 import React, { useState, useEffect } from 'react';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
+import { PlusCircle, Trash2 } from 'lucide-react';
+import { v4 as uuidv4 } from 'uuid';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Plus } from 'lucide-react';
-import TrackItem, { TrackData } from './TrackItem';
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-
-interface ReceiptFormProps {
-  onUpdate: (formData: ReceiptFormData) => void;
-}
+import TrackItem, { TrackData } from './TrackItem';
+import ThemeSelector, { ThemeData } from './ThemeSelector';
 
 export interface ReceiptFormData {
   title: string;
@@ -20,170 +16,219 @@ export interface ReceiptFormData {
   time: string;
   totalTime: string;
   producers: string;
+  theme: ThemeData;
 }
 
-const generateId = () => `track-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
-
-const defaultTrack = (): TrackData => ({
-  id: generateId(),
-  title: '',
-  duration: '',
-  featuring: ''
-});
+interface ReceiptFormProps {
+  onUpdate: (data: ReceiptFormData) => void;
+}
 
 const ReceiptForm: React.FC<ReceiptFormProps> = ({ onUpdate }) => {
   const [formData, setFormData] = useState<ReceiptFormData>({
-    title: 'PLAYBOI CARTI',
-    artist: 'PLAYBOI CARTI',
-    tracks: [
-      { id: generateId(), title: 'LOCATION', duration: '2:49', featuring: '' },
-      { id: generateId(), title: 'MAGNOLIA', duration: '3:02', featuring: '' },
-      { id: generateId(), title: 'LOOKIN', duration: '3:04', featuring: 'LIL UZI VERT' },
-      { id: generateId(), title: 'WOKEUPLIKETHIS*', duration: '3:56', featuring: 'LIL UZI VERT' },
-      { id: generateId(), title: 'LET IT GO', duration: '2:30', featuring: '' },
-      { id: generateId(), title: 'HALF & HALF', duration: '3:47', featuring: '' },
-      { id: generateId(), title: 'NEW CHOPPA', duration: '2:06', featuring: 'A$AP ROCKY' },
-      { id: generateId(), title: 'OTHER SHIT', duration: '2:50', featuring: '' },
-    ],
-    date: '14.04.2017',
-    time: '04:14',
-    totalTime: '46:50',
-    producers: 'PRODUCED BY A$AP ROCKY, CHACE JOHNSON, HARRY FRAUD, HIT-BOY, J, CASH BEATZ, JAKE ONE, JSTSEMOTHEBEAT, K-MAJOR, KASIIMGOTJUICE, MEXIKODRO, MURDA KID, PIERRE BOURNE, ROARK BAILEY, RICCI RIERA, SOUTHSIDE'
+    title: '',
+    artist: '',
+    tracks: [],
+    date: '',
+    time: '',
+    totalTime: '',
+    producers: '',
+    theme: { type: 'paper', value: 'paper' }
   });
 
-  useEffect(() => {
-    onUpdate(formData);
-  }, [formData, onUpdate]);
+  // Handle form changes
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
 
-  const updateField = (field: keyof ReceiptFormData, value: any) => {
+  // Add a new track
+  const addTrack = () => {
+    const newTrack: TrackData = {
+      id: uuidv4(),
+      title: '',
+      duration: '',
+      featuring: ''
+    };
+    
     setFormData(prev => ({
       ...prev,
-      [field]: value
+      tracks: [...prev.tracks, newTrack]
     }));
   };
 
-  const handleTrackChange = (id: string, field: keyof TrackData, value: string) => {
+  // Update a track
+  const updateTrack = (updatedTrack: TrackData) => {
     setFormData(prev => ({
       ...prev,
       tracks: prev.tracks.map(track => 
-        track.id === id ? { ...track, [field]: value } : track
+        track.id === updatedTrack.id ? updatedTrack : track
       )
     }));
   };
 
-  const addTrack = () => {
+  // Remove a track
+  const removeTrack = (trackId: string) => {
     setFormData(prev => ({
       ...prev,
-      tracks: [...prev.tracks, defaultTrack()]
+      tracks: prev.tracks.filter(track => track.id !== trackId)
     }));
   };
 
-  const removeTrack = (id: string) => {
-    setFormData(prev => ({
-      ...prev,
-      tracks: prev.tracks.filter(track => track.id !== id)
-    }));
+  // Handle theme changes
+  const handleThemeChange = (theme: ThemeData) => {
+    setFormData(prev => ({ ...prev, theme }));
   };
+
+  // Calculate total time from tracks
+  useEffect(() => {
+    let totalMinutes = 0;
+    let totalSeconds = 0;
+    
+    formData.tracks.forEach(track => {
+      const [min, sec] = track.duration.split(':').map(part => parseInt(part, 10) || 0);
+      totalMinutes += min;
+      totalSeconds += sec;
+    });
+    
+    totalMinutes += Math.floor(totalSeconds / 60);
+    totalSeconds = totalSeconds % 60;
+    
+    const calculatedTotalTime = `${totalMinutes}:${totalSeconds.toString().padStart(2, '0')}`;
+    
+    if (!formData.totalTime || formData.totalTime !== calculatedTotalTime) {
+      setFormData(prev => ({ ...prev, totalTime: calculatedTotalTime }));
+    }
+  }, [formData.tracks, formData.totalTime]);
+
+  // Update parent component when form data changes
+  useEffect(() => {
+    onUpdate(formData);
+  }, [formData, onUpdate]);
 
   return (
-    <Card className="w-full">
-      <CardHeader>
-        <CardTitle className="text-xl">Customize Your Receipt</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div className="bg-white p-6 rounded-lg shadow-md animate-slide-up">
+      <h2 className="text-xl font-semibold mb-6">Receipt Details</h2>
+      
+      <div className="space-y-6">
+        {/* Album Info */}
+        <div className="space-y-4">
           <div>
             <Label htmlFor="title">Album Title</Label>
-            <Input
-              id="title"
-              placeholder="Album Title"
-              value={formData.title}
-              onChange={(e) => updateField('title', e.target.value)}
-              className="font-mono uppercase"
+            <Input 
+              id="title" 
+              name="title" 
+              value={formData.title} 
+              onChange={handleChange} 
+              placeholder="Enter album title"
             />
           </div>
+          
           <div>
             <Label htmlFor="artist">Artist</Label>
-            <Input
-              id="artist"
-              placeholder="Artist Name"
-              value={formData.artist}
-              onChange={(e) => updateField('artist', e.target.value)}
-              className="font-mono uppercase"
+            <Input 
+              id="artist" 
+              name="artist" 
+              value={formData.artist} 
+              onChange={handleChange} 
+              placeholder="Enter artist name"
             />
           </div>
         </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        
+        {/* Date & Time */}
+        <div className="grid grid-cols-2 gap-4">
           <div>
-            <Label htmlFor="date">Date (DD.MM.YYYY)</Label>
+            <Label htmlFor="date">Date (Optional)</Label>
             <Input
               id="date"
-              placeholder="DD.MM.YYYY"
+              name="date"
+              type="date"
               value={formData.date}
-              onChange={(e) => updateField('date', e.target.value)}
-              className="font-mono"
+              onChange={handleChange}
             />
           </div>
+          
           <div>
-            <Label htmlFor="time">Time (HH:MM)</Label>
+            <Label htmlFor="time">Time (Optional)</Label>
             <Input
               id="time"
-              placeholder="HH:MM"
+              name="time"
+              type="time"
               value={formData.time}
-              onChange={(e) => updateField('time', e.target.value)}
-              className="font-mono"
-            />
-          </div>
-          <div>
-            <Label htmlFor="totalTime">Total Time (MM:SS)</Label>
-            <Input
-              id="totalTime"
-              placeholder="MM:SS"
-              value={formData.totalTime}
-              onChange={(e) => updateField('totalTime', e.target.value)}
-              className="font-mono"
+              onChange={handleChange}
             />
           </div>
         </div>
-
+        
+        {/* Tracks Section */}
         <div>
-          <Label>Tracks</Label>
-          <div className="space-y-1 mb-3">
-            {formData.tracks.map((track, index) => (
-              <TrackItem
-                key={track.id}
-                track={track}
-                onChange={handleTrackChange}
-                onRemove={removeTrack}
-                index={index}
-              />
-            ))}
+          <div className="flex justify-between items-center mb-2">
+            <Label>Tracks</Label>
+            <Button 
+              type="button" 
+              onClick={addTrack} 
+              variant="outline" 
+              size="sm"
+              className="flex items-center gap-1"
+            >
+              <PlusCircle className="h-4 w-4" />
+              <span>Add Track</span>
+            </Button>
           </div>
-          <Button 
-            type="button" 
-            onClick={addTrack}
-            variant="outline"
-            className="w-full"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Add Track
-          </Button>
+          
+          <div className="space-y-3 max-h-64 overflow-y-auto pr-2">
+            {formData.tracks.length === 0 ? (
+              <p className="text-sm text-gray-500 italic text-center py-4">
+                No tracks added yet. Click "Add Track" to get started.
+              </p>
+            ) : (
+              formData.tracks.map((track, index) => (
+                <TrackItem
+                  key={track.id}
+                  track={track}
+                  index={index}
+                  onUpdate={updateTrack}
+                  onRemove={() => removeTrack(track.id)}
+                />
+              ))
+            )}
+          </div>
         </div>
-
+        
+        {/* Total Time - Manual Override */}
         <div>
-          <Label htmlFor="producers">Producers/Credits</Label>
-          <Textarea
+          <Label htmlFor="totalTime">Total Time (Optional)</Label>
+          <Input
+            id="totalTime"
+            name="totalTime"
+            value={formData.totalTime}
+            onChange={handleChange}
+            placeholder="Override calculated total (e.g. 45:30)"
+          />
+          <p className="text-xs text-gray-500 mt-1">
+            Leave empty to auto-calculate from tracks
+          </p>
+        </div>
+        
+        {/* Producer Credits */}
+        <div>
+          <Label htmlFor="producers">Producer Credits</Label>
+          <Input
             id="producers"
-            placeholder="List all producers and credits here"
+            name="producers"
             value={formData.producers}
-            onChange={(e) => updateField('producers', e.target.value)}
-            rows={3}
-            className="font-mono uppercase text-sm"
+            onChange={handleChange}
+            placeholder="PRODUCED BY YOUR PRODUCERS HERE"
           />
         </div>
-      </CardContent>
-    </Card>
+        
+        {/* Theme Selector */}
+        <ThemeSelector
+          value={formData.theme}
+          onChange={handleThemeChange}
+        />
+      </div>
+    </div>
   );
 };
 

@@ -4,6 +4,7 @@ import ReceiptForm, { ReceiptFormData } from '@/components/ReceiptForm';
 import Receipt from '@/components/Receipt';
 import DownloadButton from '@/components/DownloadButton';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { ThemeData } from '@/components/ThemeSelector';
 
 const Index = () => {
   const [receiptData, setReceiptData] = useState<ReceiptFormData>({
@@ -13,7 +14,8 @@ const Index = () => {
     date: '',
     time: '',
     totalTime: '',
-    producers: ''
+    producers: '',
+    theme: { type: 'paper', value: 'paper' }
   });
   
   const receiptRef = useRef<HTMLDivElement>(null);
@@ -60,6 +62,7 @@ const Index = () => {
                   time={receiptData.time}
                   totalTime={receiptData.totalTime}
                   producers={receiptData.producers}
+                  theme={receiptData.theme}
                 />
               </div>
             </div>

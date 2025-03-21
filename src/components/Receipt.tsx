@@ -1,5 +1,8 @@
+
 import React, { forwardRef } from 'react';
 import { TrackData } from './TrackItem';
+import { ThemeData } from './ThemeSelector';
+import { cn } from '@/lib/utils';
 
 interface ReceiptProps {
   title: string;
@@ -9,6 +12,7 @@ interface ReceiptProps {
   time: string;
   totalTime: string;
   producers: string;
+  theme: ThemeData;
 }
 
 const Receipt = forwardRef<HTMLDivElement, ReceiptProps>(({
@@ -18,7 +22,8 @@ const Receipt = forwardRef<HTMLDivElement, ReceiptProps>(({
   date,
   time,
   totalTime,
-  producers
+  producers,
+  theme = { type: 'paper', value: 'paper' }
 }, ref) => {
   // Calculate total minutes from tracks
   const calculateTotalMinutes = () => {
@@ -52,60 +57,94 @@ const Receipt = forwardRef<HTMLDivElement, ReceiptProps>(({
     minute: '2-digit'
   });
 
+  // Dynamically generate the background style based on the theme
+  const getBackgroundStyle = () => {
+    switch (theme.type) {
+      case 'solid':
+        return { background: theme.value };
+      case 'gradient':
+        return { background: theme.value };
+      case 'image':
+        return { 
+          backgroundImage: `url(${theme.value})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center'
+        };
+      case 'paper':
+      default:
+        return {};
+    }
+  };
+
   return (
     <div 
       ref={ref}
       className="receipt-wrapper w-full max-w-md mx-auto bg-white shadow-lg"
     >
-      <div className="receipt-paper p-8 pt-10 font-mono text-gray-800 tracking-wide">
-        {/* Title */}
-        <div className="text-center mb-6 animate-fade-in">
-          <h1 className="text-3xl uppercase font-bold tracking-wider mb-2">
-            {title || "ALBUM TITLE"}
-          </h1>
-          <p className="text-sm uppercase">
-            BY {artist || "ARTIST NAME"}
-          </p>
-        </div>
+      <div 
+        className={cn(
+          "p-8 pt-10 font-mono text-gray-800 tracking-wide",
+          theme.type === 'paper' ? "receipt-paper" : "",
+          theme.type === 'image' ? "relative" : ""
+        )}
+        style={getBackgroundStyle()}
+      >
+        {/* Add overlay for better text readability on images or dark backgrounds */}
+        {theme.type === 'image' && (
+          <div className="absolute inset-0 bg-white/70"></div>
+        )}
         
-        {/* Track List */}
-        <div className="mb-6">
-          {tracks.map((track, index) => (
-            <div 
-              key={track.id} 
-              className="flex justify-between track-list-item"
-            >
-              <div className="flex-1 pr-4 truncate">
-                <span className="uppercase">{track.title || `TRACK ${index + 1}`}</span>
-                {track.featuring && (
-                  <span className="text-gray-600 uppercase"> (FEAT. {track.featuring})</span>
-                )}
+        {/* Content Container with proper z-index to appear above overlays */}
+        <div className="relative z-10">
+          {/* Title */}
+          <div className="text-center mb-6 animate-fade-in">
+            <h1 className="text-3xl uppercase font-bold tracking-wider mb-2">
+              {title || "ALBUM TITLE"}
+            </h1>
+            <p className="text-sm uppercase">
+              BY {artist || "ARTIST NAME"}
+            </p>
+          </div>
+          
+          {/* Track List */}
+          <div className="mb-6">
+            {tracks.map((track, index) => (
+              <div 
+                key={track.id} 
+                className="flex justify-between track-list-item"
+              >
+                <div className="flex-1 pr-4 truncate">
+                  <span className="uppercase">{track.title || `TRACK ${index + 1}`}</span>
+                  {track.featuring && (
+                    <span className="text-gray-600 uppercase"> (FEAT. {track.featuring})</span>
+                  )}
+                </div>
+                <div className="text-right">
+                  {track.duration || "0:00"}
+                </div>
               </div>
-              <div className="text-right">
-                {track.duration || "0:00"}
-              </div>
-            </div>
-          ))}
-        </div>
-        
-        {/* Total Minutes */}
-        <div className="flex justify-between py-1 border-t border-b border-gray-300 mb-6">
-          <span className="uppercase font-bold">TOTAL MINUTES</span>
-          <span>{calculateTotalMinutes()}</span>
-        </div>
-        
-        {/* Date and ID */}
-        <div className="flex justify-center mb-6 text-sm">
-          <span>{formattedDate} {formattedTime} {Math.floor(Math.random() * 90 + 10)} {Math.floor(Math.random() * 90 + 10)} {Math.floor(Math.random() * 90000 + 10000)} {Math.floor(Math.random() * 9000 + 1000)}</span>
-        </div>
-        
-        {/* Credits */}
-        <div className="text-center text-sm mb-2">
-          <p className="uppercase mb-2">COPYRIGHT {new Date().getFullYear()}</p>
-          <p className="uppercase mb-4 whitespace-pre-wrap">
-            {producers || "PRODUCED BY YOUR PRODUCERS HERE"}
-          </p>
-          <p className="text-xs">@ALBUMRECEIPTS</p>
+            ))}
+          </div>
+          
+          {/* Total Minutes */}
+          <div className="flex justify-between py-1 border-t border-b border-gray-300 mb-6">
+            <span className="uppercase font-bold">TOTAL MINUTES</span>
+            <span>{calculateTotalMinutes()}</span>
+          </div>
+          
+          {/* Date and ID */}
+          <div className="flex justify-center mb-6 text-sm">
+            <span>{formattedDate} {formattedTime} {Math.floor(Math.random() * 90 + 10)} {Math.floor(Math.random() * 90 + 10)} {Math.floor(Math.random() * 90000 + 10000)} {Math.floor(Math.random() * 9000 + 1000)}</span>
+          </div>
+          
+          {/* Credits */}
+          <div className="text-center text-sm mb-2">
+            <p className="uppercase mb-2">COPYRIGHT {new Date().getFullYear()}</p>
+            <p className="uppercase mb-4 whitespace-pre-wrap">
+              {producers || "PRODUCED BY YOUR PRODUCERS HERE"}
+            </p>
+            <p className="text-xs">@ALBUMRECEIPTS</p>
+          </div>
         </div>
       </div>
     </div>
