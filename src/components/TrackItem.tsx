@@ -13,19 +13,31 @@ export interface TrackData {
 
 interface TrackItemProps {
   track: TrackData;
-  onChange: (id: string, field: keyof TrackData, value: string) => void;
+  onChange?: (id: string, field: keyof TrackData, value: string) => void;
+  onUpdate?: (updatedTrack: TrackData) => void;
   onRemove: (id: string) => void;
   index: number;
 }
 
-const TrackItem: React.FC<TrackItemProps> = ({ track, onChange, onRemove, index }) => {
+const TrackItem: React.FC<TrackItemProps> = ({ track, onChange, onUpdate, onRemove, index }) => {
+  const handleChange = (field: keyof TrackData, value: string) => {
+    if (onChange) {
+      onChange(track.id, field, value);
+    } else if (onUpdate) {
+      onUpdate({
+        ...track,
+        [field]: value,
+      });
+    }
+  };
+
   return (
     <div className="grid grid-cols-12 gap-2 mb-2 items-center animate-slide-up" style={{ animationDelay: `${index * 0.05}s` }}>
       <div className="col-span-6 sm:col-span-5">
         <Input 
           placeholder="TRACK TITLE"
           value={track.title}
-          onChange={(e) => onChange(track.id, 'title', e.target.value)}
+          onChange={(e) => handleChange('title', e.target.value)}
           className="font-mono text-sm uppercase"
         />
       </div>
@@ -34,7 +46,7 @@ const TrackItem: React.FC<TrackItemProps> = ({ track, onChange, onRemove, index 
         <Input 
           placeholder="FEAT. ARTIST (optional)"
           value={track.featuring || ''}
-          onChange={(e) => onChange(track.id, 'featuring', e.target.value)}
+          onChange={(e) => handleChange('featuring', e.target.value)}
           className="font-mono text-sm uppercase"
         />
       </div>
@@ -43,7 +55,7 @@ const TrackItem: React.FC<TrackItemProps> = ({ track, onChange, onRemove, index 
         <Input 
           placeholder="0:00"
           value={track.duration}
-          onChange={(e) => onChange(track.id, 'duration', e.target.value)}
+          onChange={(e) => handleChange('duration', e.target.value)}
           className="font-mono text-sm"
         />
       </div>
