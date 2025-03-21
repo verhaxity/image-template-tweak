@@ -143,7 +143,7 @@ const Receipt = forwardRef<HTMLDivElement, ReceiptProps>(({
             <p className="uppercase mb-4 whitespace-pre-wrap">
               {producers || "PRODUCED BY YOUR PRODUCERS HERE"}
             </p>
-            <p className="text-xs">@ALBUMRECEIPTS</p>
+            <p className="text-xs">x @nyatsot</p>
           </div>
         </div>
       </div>
