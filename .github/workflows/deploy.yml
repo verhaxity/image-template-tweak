@@ -42,7 +42,7 @@ jobs:
           fi
 
       - name: Build
-        run: npm run build
+        run: npm install && npm run build
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
