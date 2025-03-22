@@ -9,7 +9,6 @@ export default defineConfig(({ mode }) => ({
   base: '/image-template-tweak/', // Updated base path for GitHub Pages
   build: {
     outDir: 'dist',
-    assetsDir: 'assets', // Ensure JS & CSS are placed in /assets
   },
   server: {
     host: "::",
