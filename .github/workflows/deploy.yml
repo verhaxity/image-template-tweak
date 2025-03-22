@@ -34,11 +34,11 @@ jobs:
 
       - name: Update Vite Config with Base Path
         run: |
-          if grep -q "base:" "vite.config.js"; then
+          if grep -q "base:" "vite.config.ts"; then
             echo "Base path already configured"
           else
-            sed -i "/defineConfig/a \ \ base: '/image-template-tweak/'," vite.config.js
-            cat vite.config.js
+            sed -i "/defineConfig/a \ \ base: '/image-template-tweak/'," vite.config.ts
+            cat vite.config.ts
           fi
 
       - name: Build
