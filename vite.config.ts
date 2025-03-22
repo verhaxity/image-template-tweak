@@ -7,6 +7,8 @@ import { componentTagger } from "lovable-tagger";
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
   base: '/image-template-tweak/', // Updated base path for GitHub Pages
+  build: {
+    outDir: 'dist',
   server: {
     host: "::",
     port: 8080,
